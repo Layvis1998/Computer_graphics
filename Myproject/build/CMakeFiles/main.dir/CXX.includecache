@@ -1,0 +1,44 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+../dependencies/include/GLAD/KHR/khrplatform.h
+stdint.h
+-
+inttypes.h
+-
+stdint.h
+-
+
+../dependencies/include/GLAD/glad/glad.h
+windows.h
+-
+stddef.h
+-
+KHR/khrplatform.h
+-
+inttypes.h
+-
+inttypes.h
+-
+inttypes.h
+-
+stdint.h
+-
+stdint.h
+-
+inttypes.h
+-
+
+/home/Layvis/Documents/Computer graphics/Myproject/main.cpp
+glad/glad.h
+-
+GLFW/glfw3.h
+-
+iostream
+-
+
