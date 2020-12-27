@@ -1,0 +1,101 @@
+#version 330 core
+out vec4 FragColor;
+in vec4 Vertex_to_fragment;
+
+uniform vec3 eye;
+uniform vec3 lbp;      //left bottom point     
+uniform vec3 ltp;      //left top point
+uniform vec3 rbp;      //right bottom point
+uniform vec3 rtp;      //right top point
+    
+struct sphere
+{
+  float radius;
+  vec3 center;
+};
+
+float length (vec3 dist)
+{
+  return sqrt (dist.x * dist.x + dist.y * dist.y + dist.z * dist.z);
+}
+
+float DstToSphere (vec3 p, sphere s1)
+{
+  return length (s1.center - p) - s1.radius;
+}
+
+float norm2 (vec3 vector)
+{
+  return sqrt (vector.x * vector.x + vector.y * vector.y + vector.z * vector.z);
+}
+
+
+void main()
+{
+  //important variables
+  vec4 crd = Vertex_to_fragment;
+  vec3 f_lbp = lbp + eye;
+  vec3 f_ltp = ltp + eye;
+  vec3 f_rbp = rbp + eye;
+  vec3 f_rtp = rtp + eye;
+  const float max_view = 75;
+  
+  //space description
+  const int sa = 8;                                     
+  sphere s[sa];
+  s[0] = sphere(1.5, vec3(0, 1.1, 10));
+  s[1] = sphere(0.3, vec3(1.1, 0.1, 8));
+  s[2] = sphere(2.5, vec3(7, 7, 11));  
+  s[3] = sphere(1, vec3(5, 2, 1));
+  s[4] = sphere(0.5, vec3(-5, -1, 7));
+  s[5] = sphere(1.3, vec3(7, -9, -3));
+  s[6] = sphere(4.1, vec3(-3, -5, -9));
+  s[7] = sphere(11, vec3(-30, -5, -11));
+
+  vec3 new_max_x = (f_rtp + f_rbp) / 2;
+  vec3 new_min_x = (f_ltp + f_lbp) / 2;
+  vec3 new_max_y = (f_ltp + f_rtp) / 2;
+  vec3 new_min_y = (f_lbp + f_rbp) / 2;
+  vec3 new_x = (new_max_x - new_min_x) * (crd.x - (-1)) / 2;
+  vec3 new_y = (new_max_y - new_min_y) * (crd.y - (-1)) / 2;
+     
+  vec3 ray_way = (f_lbp + new_x + new_y);
+  
+  float view = norm2(ray_way - eye);
+  vec3 moving_dir = (ray_way - eye) / view;
+  float min_dist = 1;
+  float dist = 0.0;
+  bool ray_connected = true;
+  
+  while (min_dist > 0.01)
+  {
+    min_dist = DstToSphere (ray_way, s[0]);
+    for (int i = 1; i < sa; i++)
+    {
+      dist = DstToSphere (ray_way, s[i]);
+      if (min_dist > dist)
+      {
+        min_dist = dist;
+      }
+    }    
+    ray_way = ray_way + moving_dir * min_dist;
+    view = view + min_dist;
+    
+    if (view > max_view)
+    {
+      ray_connected = false;
+      break;
+    }   
+  }
+    
+  if (ray_connected == true)
+  {
+    FragColor = vec4(1.0 - view / max_view / 3, 1.0 - view / max_view / 3,
+      0.5 - view / max_view, 1.0);
+  }
+  else
+  {
+    FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+  }
+  
+}
